@@ -1,0 +1,23 @@
+language: scala
+scala:
+  - "2.12.0-M1"
+  - "2.11.7"
+  - "2.10.5"
+jdk:
+  - oraclejdk8
+  - oraclejdk7
+sudo: false
+cache:
+  directories:
+    - $HOME/.ivy2/cache
+    - $HOME/.mvn/
+script:
+  - git clone https://github.com/deeplearning4j/nd4j.git && cd nd4j/ && mvn clean install -DskipTests -Dmaven.javadoc.skip=true --quiet && cd ../
+  - git clone https://github.com/deeplearning4j/Canova.git && cd Canova/ && mvn clean install -DskipTests -Dmaven.javadoc.skip=true --quiet && cd ../
+  - git clone https://github.com/deeplearning4j/deeplearning4j && cd deeplearning4j && mvn clean install -pl !dl4j-caffe -DskipTests -Dmaven.javadoc.skip=true --quiet
+  - cd ../
+  - sbt ++${TRAVIS_SCALA_VERSION} test
+  - find $HOME/.sbt -name "*.lock" | xargs rm
+  - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
+  - if [[ ${JAVA_HOME} == $(jdk_switcher home oraclejdk7) ]]; then rm -rf $HOME/.ivy2/cache ; fi
+ 
